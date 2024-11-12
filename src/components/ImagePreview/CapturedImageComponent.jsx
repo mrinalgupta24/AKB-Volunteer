@@ -29,13 +29,13 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
       <div className="flex gap-4 mt-4">
         <button
           onClick={onRetake}
-          className="px-6 py-2 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600"
+          className="px-6 py-2 mb-4 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600"
         >
           Retake
         </button>
         <button
           onClick={onAccept}
-          className="px-6 py-2 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600"
+          className="px-6 py-2 mb-4 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600"
         >
           Accept
         </button>

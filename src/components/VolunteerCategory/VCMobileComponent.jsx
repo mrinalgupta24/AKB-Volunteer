@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
 import img1 from "../../assets/fundraising.png";
-import CapturedImageComponent from "../ImagePreview/CapturedImageComponent"; // Adjust this path if necessary
+import CapturedImageComponent from "../ImagePreview/CapturedImageComponent";
+import DonorCardOverlay from "../ImagePreview/DonorCardOverlay";
 
 const CameraComponent = ({ onClose, onCapture, name }) => {
   const videoRef = React.useRef(null);
@@ -82,6 +83,8 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
+        {/* Render Donor Card Overlay on top of the camera video */}
+        <DonorCardOverlay name={name} />
         <button
           onClick={toggleCamera}
           className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-lg"
@@ -141,6 +144,7 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
 
       {!showCamera && !capturedImage ? (
         <>
+          {/* Parcel Information */}
           <div className="w-11/12 max-w-md px-4 py-6 mt-6 bg-white rounded-lg shadow-md mx-auto">
             <p className="text-gray-800 font-semibold">
               Name on Parcel: <span className="font-normal">{name}</span>
@@ -154,6 +158,7 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
             </p>
           </div>
 
+          {/* Image */}
           <div className="my-6">
             <img
               src={img1}
@@ -162,6 +167,7 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
             />
           </div>
 
+          {/* Buttons */}
           <div className="flex flex-col w-full max-w-md space-y-4 px-4">
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
@@ -197,11 +203,10 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
           imageData={capturedImage}
           onRetake={handleRetake}
           onAccept={handleAccept}
-          name={name} // Pass the name prop to CapturedImageComponent
         />
       )}
 
-      <footer className="w-full py-2 text-center bg-gray-200 mt-auto">
+      <footer className="w-full py-2 text-center bg-gray-200 font-bold mt-auto">
         AKB
       </footer>
     </div>

@@ -6,7 +6,7 @@ const MobileComponent = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="w-full py-4 bg-gray-200 text-center font-semibold text-lg">
+      <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
         Volunteer Dashboard
       </header>
 
@@ -32,7 +32,7 @@ const MobileComponent = () => {
       </div>
 
       {/* Footer */}
-      <footer className="w-full py-2 text-center bg-gray-200 mt-auto">
+      <footer className="w-full py-2 text-center bg-gray-200 font-bold mt-auto">
         AKB
       </footer>
     </div>
