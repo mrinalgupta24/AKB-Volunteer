@@ -4,11 +4,11 @@ import DonorCardOverlay from "../ImagePreview/DonorCardOverlay"; // Adjust this 
 const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
   return (
     <div className="flex flex-col items-center w-full h-full">
-      <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
+      {/* <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
         Captured Image
-      </header>
+      </header> */}
 
-      <div className="relative w-full h-[75vh] flex items-center justify-center">
+      <div className="relative w-screen h-[75vh] flex items-center justify-center">
         {/* Display Captured Image */}
         {imageData ? (
           <div className="relative w-full h-full flex justify-center items-center">
@@ -17,8 +17,10 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
               alt="Captured"
               className="w-auto h-full object-contain rounded-md shadow-lg"
             />
-            {/* Overlay Donor Card */}
-            <DonorCardOverlay name="AKB FOUNDATION" />
+            {/* Overlay Donor Card, position it properly */}
+            <div className="absolute top-3 left-3 w-[150px]">
+              <DonorCardOverlay name="AKB FOUNDATION" />
+            </div>
           </div>
         ) : (
           <p>No image captured</p>

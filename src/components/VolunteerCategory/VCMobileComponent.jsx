@@ -94,10 +94,10 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
         </button>
       </div>
 
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-4 mt-4 mb-4">
         <button
           onClick={handleCapture}
-          className="px-6 py-2 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700"
+          className="px-6 py-2  bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700"
         >
           Capture
         </button>
@@ -206,7 +206,7 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
         />
       )}
 
-      <footer className="w-full py-2 text-center bg-gray-200 font-bold mt-auto">
+      <footer className="w-full py-4 text-center bg-gray-200 font-bold mt-auto">
         AKB
       </footer>
     </div>

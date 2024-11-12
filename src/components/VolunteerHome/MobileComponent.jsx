@@ -78,7 +78,7 @@ const MobileComponent = () => {
 
       {/* Footer */}
       <div className="text-center mt-8">
-        <p className="text-gray-500">AKB</p>
+        <p className="text-black font-bold">AKB</p>
       </div>
     </div>
   );

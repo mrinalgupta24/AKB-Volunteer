@@ -26,7 +26,7 @@ const MobileComponent = () => {
       </div>
 
       {/* Footer */}
-      <footer className="w-full py-2 text-center bg-gray-200 mt-auto">
+      <footer className="w-full py-4 text-center bg-gray-200 mt-auto">
         AKB
       </footer>
     </div>
