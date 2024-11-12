@@ -6,6 +6,7 @@ import VolunteerSelectCategory from "./pages/VolunteerSelectCategory";
 import VolunteerCategory from "./pages/VolunteerCategory";
 import UploadMoreImages from "./pages/UploadMoreImages";
 import UploadImages from "./pages/UploadedImages";
+import ImagePreview from "./pages/ImagePreview";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/feed-stray-animals" element={<VolunteerCategory />} />
         <Route path="/upload-images" element={<UploadMoreImages />} />
         <Route path="/uploaded-images" element={<UploadImages />} />
+        <Route path="" element={<ImagePreview />} />
 
         {/* New route */}
       </Routes>

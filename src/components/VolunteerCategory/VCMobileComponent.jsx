@@ -2,38 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
 import img1 from "../../assets/fundraising.png";
-
-const DonorCardOverlay = ({ name }) => (
-  <div className="absolute top-3 left-3 w-[150px]">
-    <div className="bg-gradient-to-b from-blue-900 to-blue-950 rounded-xl overflow-hidden shadow-lg">
-      <div className="bg-blue-800 p-1.5 text-center">
-        <h1 className="text-xs font-bold text-white tracking-wide">
-          AKB FOUNDATION
-        </h1>
-      </div>
-      <div className="relative p-3">
-        <div className="relative mx-auto w-12 h-12 mb-2">
-          <div className="absolute inset-0 rounded-full border-2 border-blue-400 shadow-lg overflow-hidden">
-            <div className="w-full h-full bg-blue-200/20" />
-          </div>
-          <div className="absolute -inset-1 border-2 border-blue-300/30 rounded-full animate-spin-slow" />
-        </div>
-        <div className="space-y-1.5">
-          <div className="bg-white/90 text-blue-900 py-0.5 px-2 rounded-md font-bold text-[8px] inline-block">
-            FEED A HUNGRY STOMACH
-          </div>
-          <div className="text-white space-y-1">
-            <p className="text-[10px] font-bold text-center">DONOR NAME</p>
-            <div className="h-px w-12 mx-auto bg-blue-400/50" />
-            <p className="text-[8px] text-blue-200 italic text-center">
-              Making Change Together
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+import CapturedImageComponent from "../ImagePreview/CapturedImageComponent"; // Adjust this path if necessary
 
 const CameraComponent = ({ onClose, onCapture, name }) => {
   const videoRef = React.useRef(null);
@@ -113,7 +82,6 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
-        <DonorCardOverlay name={name} />
         <button
           onClick={toggleCamera}
           className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-lg"
@@ -141,8 +109,9 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
   );
 };
 
-const MobileComponent = ({ name, category, photosRemaining }) => {
+const VCMobileComponent = ({ name, category, photosRemaining }) => {
   const [showCamera, setShowCamera] = useState(false);
+  const [capturedImage, setCapturedImage] = useState(null);
   const navigate = useNavigate();
 
   const handleCameraClose = () => {
@@ -150,20 +119,28 @@ const MobileComponent = ({ name, category, photosRemaining }) => {
   };
 
   const handleImageCapture = (imageData) => {
-    console.log("Image captured:", imageData);
+    setCapturedImage(imageData);
     handleCameraClose();
+  };
+
+  const handleRetake = () => {
+    setCapturedImage(null);
+    setShowCamera(true);
+  };
+
+  const handleAccept = () => {
+    console.log("Image accepted:", capturedImage);
+    setCapturedImage(null); // Optionally clear image or navigate
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
-      {/* Header */}
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
         Volunteer Dashboard
       </header>
 
-      {!showCamera ? (
+      {!showCamera && !capturedImage ? (
         <>
-          {/* Parcel Information */}
           <div className="w-11/12 max-w-md px-4 py-6 mt-6 bg-white rounded-lg shadow-md mx-auto">
             <p className="text-gray-800 font-semibold">
               Name on Parcel: <span className="font-normal">{name}</span>
@@ -177,7 +154,6 @@ const MobileComponent = ({ name, category, photosRemaining }) => {
             </p>
           </div>
 
-          {/* Image */}
           <div className="my-6">
             <img
               src={img1}
@@ -186,7 +162,6 @@ const MobileComponent = ({ name, category, photosRemaining }) => {
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex flex-col w-full max-w-md space-y-4 px-4">
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
@@ -211,21 +186,26 @@ const MobileComponent = ({ name, category, photosRemaining }) => {
             </button>
           </div>
         </>
+      ) : showCamera ? (
+        <CameraComponent
+          onClose={handleCameraClose}
+          onCapture={handleImageCapture}
+          name={name}
+        />
       ) : (
-        <div className="w-full h-full">
-          <CameraComponent
-            onClose={handleCameraClose}
-            onCapture={handleImageCapture}
-            name={name}
-          />
-        </div>
+        <CapturedImageComponent
+          imageData={capturedImage}
+          onRetake={handleRetake}
+          onAccept={handleAccept}
+          name={name} // Pass the name prop to CapturedImageComponent
+        />
       )}
 
-      {/* Footer */}
       <footer className="w-full py-2 text-center bg-gray-200 mt-auto">
         AKB
       </footer>
     </div>
   );
 };
-export default MobileComponent;
+
+export default VCMobileComponent;
