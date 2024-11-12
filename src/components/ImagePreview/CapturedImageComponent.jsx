@@ -18,7 +18,7 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
               className="w-auto h-full object-contain rounded-md shadow-lg"
             />
             {/* Overlay Donor Card, position it properly */}
-            <div className="absolute top-3 left-4 w-[150px]">
+            <div className="absolute top-3 left-5 w-[150px]">
               <DonorCardOverlay name="AKB FOUNDATION" />
             </div>
           </div>
