@@ -1,7 +1,7 @@
 import React from "react";
 
 const DonorCardOverlay = ({ name }) => (
-  <div className="absolute top-3 left-3 w-[150px]">
+  <div className="absolute top-3 left-4 w-[150px]">
     <div className="bg-gradient-to-b from-blue-900 to-blue-950 rounded-xl overflow-hidden shadow-lg">
       <div className="bg-blue-800 p-1.5 text-center">
         <h1 className="text-xs font-bold text-white tracking-wide">

@@ -8,7 +8,7 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
         Captured Image
       </header> */}
 
-      <div className="relative w-screen h-[75vh] flex items-center justify-center">
+      <div className="relative w-full h-[75vh] flex items-center justify-center">
         {/* Display Captured Image */}
         {imageData ? (
           <div className="relative w-full h-full flex justify-center items-center">
@@ -18,7 +18,7 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
               className="w-auto h-full object-contain rounded-md shadow-lg"
             />
             {/* Overlay Donor Card, position it properly */}
-            <div className="absolute top-3 left-3 w-[150px]">
+            <div className="absolute top-3 left-4 w-[150px]">
               <DonorCardOverlay name="AKB FOUNDATION" />
             </div>
           </div>

@@ -170,21 +170,21 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
           {/* Buttons */}
           <div className="flex flex-col w-full max-w-md space-y-4 px-4">
             <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => setShowCamera(true)}
             >
               <Camera size={20} />
               Upload
             </button>
             <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => navigate("/uploaded-images")}
             >
               <ImageIcon size={20} />
               View Uploaded Images
             </button>
             <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => navigate("/upload-images")}
             >
               <Upload size={20} />
