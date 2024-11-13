@@ -112,7 +112,7 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
   );
 };
 
-const VCMobileComponent = ({ name, category, photosRemaining }) => {
+const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const navigate = useNavigate();
@@ -133,7 +133,7 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
 
   const handleAccept = () => {
     console.log("Image accepted:", capturedImage);
-    setCapturedImage(null); // Optionally clear image or navigate
+    navigate("/uploadmoreimage");
   };
 
   return (
@@ -153,7 +153,11 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
               Category: <span className="font-normal">{category}</span>
             </p>
             <p className="text-gray-800 font-semibold">
-              Photos Remaining:{" "}
+              Amount Paid for 1 Dress:
+              <span className="font-normal">{photosRemaining}</span>
+            </p>
+            <p className="text-gray-800 font-semibold">
+              Special Request:
               <span className="font-normal">{photosRemaining}</span>
             </p>
           </div>
@@ -168,13 +172,27 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col w-full max-w-md space-y-4 px-4">
+          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6">
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => setShowCamera(true)}
             >
               <Camera size={20} />
-              Upload
+              Upload Bill
+            </button>
+            <button
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              onClick={() => setShowCamera(true)}
+            >
+              <Camera size={20} />
+              Upload Dress
+            </button>
+            <button
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              onClick={() => setShowCamera(true)}
+            >
+              <Camera size={20} />
+              Upload Person Holding Dress
             </button>
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
@@ -184,10 +202,10 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
               View Uploaded Images
             </button>
             <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
+              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap- "
               onClick={() => navigate("/upload-images")}
             >
-              <Upload size={20} />
+              <Upload size={20} className="mr-2" />
               Add Extra Image/Reupload
             </button>
           </div>
@@ -213,4 +231,4 @@ const VCMobileComponent = ({ name, category, photosRemaining }) => {
   );
 };
 
-export default VCMobileComponent;
+export default GroceriesMobileComponent;

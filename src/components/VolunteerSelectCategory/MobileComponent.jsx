@@ -18,17 +18,17 @@ const MobileComponent = () => {
         <CategoryButton text="Feed Food for Needy" route="/feed-food" />
         <CategoryButton
           text="Feed for Stray Cats / Dogs"
-          route="/feed-stray-animals"
+          route="/feed-food"
         />
-        <CategoryButton
+        {/* <CategoryButton
           text="Provide Medicines to the Poor"
           route="/provide-medicines"
-        />
-        <CategoryButton
+        /> */}
+        {/* <CategoryButton
           text="Sanitary Pads to Poor Girls"
           route="/sanitary-pads"
-        />
-        <CategoryButton text="Clothes to Poor" route="/clothes-to-poor" />
+        /> */}
+        <CategoryButton text="Groceries to Poor" route="/groceries-to-poor" />
       </div>
 
       {/* Footer */}

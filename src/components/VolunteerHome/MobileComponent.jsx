@@ -56,12 +56,12 @@ const MobileComponent = () => {
         >
           Upload Donation Photos <span>&#8250;</span>
         </button>
-        <button
+        {/* <button
           onClick={() => navigate("/resume-upload")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Resume Uploading Photos <span>&#8250;</span>
-        </button>
+        </button> */}
         <button
           onClick={() => navigate("/upload-expenses")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"

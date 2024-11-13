@@ -7,6 +7,7 @@ import VolunteerCategory from "./pages/VolunteerCategory";
 import UploadMoreImages from "./pages/UploadMoreImages";
 import UploadImages from "./pages/UploadedImages";
 import ImagePreview from "./pages/ImagePreview";
+import GroceriesMobileComponent from "./components/VolunteerCategory/GroceriesMobileComponent";
 
 const App = () => {
   return (
@@ -18,10 +19,14 @@ const App = () => {
           path="upload-donation-photos"
           element={<VolunteerSelectCategory />}
         />
-        <Route path="/feed-stray-animals" element={<VolunteerCategory />} />
-        <Route path="/upload-images" element={<UploadMoreImages />} />
+        <Route path="/feed-food" element={<VolunteerCategory />} />
+        <Route path="/uploadmoreimage" element={<UploadMoreImages />} />
         <Route path="/uploaded-images" element={<UploadImages />} />
         <Route path="" element={<ImagePreview />} />
+        <Route
+          path="/groceries-to-poor"
+          element={<GroceriesMobileComponent />}
+        />
 
         {/* New route */}
       </Routes>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useMediaQuery } from "react-responsive";
-import MobileComponent from "../components/VolunteerCategory/VCMobileComponent"; // Import the mobile component
-import WebComponent from "../components/VolunteerCategory/VCWebComponent"; // Import the web component
+import MobileComponent from "../components/VolunteerCategory/FeedFoodMobileComponent"; // Import the mobile component
+import WebComponent from "../components/VolunteerCategory/FeedFoodWebComponent"; // Import the web component
 
 const VolunteerCategory = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
