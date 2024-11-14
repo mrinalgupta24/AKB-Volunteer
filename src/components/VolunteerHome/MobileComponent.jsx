@@ -45,7 +45,7 @@ const MobileComponent = () => {
       {/* Action Buttons */}
       <div className="space-y-4">
         <button
-          onClick={() => navigate("/view-donation")}
+          onClick={() => navigate("/orgn-details")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           View Organization Donation <span>&#8250;</span>
@@ -63,7 +63,7 @@ const MobileComponent = () => {
           Resume Uploading Photos <span>&#8250;</span>
         </button> */}
         <button
-          onClick={() => navigate("/upload-expenses")}
+          onClick={() => navigate("/upload-bills")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Upload Expenses Bills <span>&#8250;</span>

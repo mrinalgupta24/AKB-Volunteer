@@ -1,7 +1,7 @@
 import React from "react";
 import images from "../../assets/fundraising.png";
 
-const MobileComponent = () => {
+const UploadedImagesOne = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       {/* Header */}
@@ -26,11 +26,11 @@ const MobileComponent = () => {
       </div>
 
       {/* Footer */}
-      <footer className="w-full py-4 text-center bg-gray-200 mt-auto">
+      <footer className="w-full py-4 text-center bg-gray-200 font-bold mt-auto">
         AKB
       </footer>
     </div>
   );
 };
 
-export default MobileComponent;
+export default UploadedImagesOne;
