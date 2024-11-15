@@ -18,7 +18,7 @@ const MobileComponent = () => {
         <CategoryButton text="Feed Food for Needy" route="/feed-food" />
         <CategoryButton
           text="Feed for Stray Cats / Dogs"
-          route="/feed-food"
+          route="/feed-stray"
         />
         {/* <CategoryButton
           text="Provide Medicines to the Poor"

@@ -9,14 +9,18 @@ const VerifierSignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     if (!phoneNumber || !password) {
       setError("Please fill in all fields");
+      setIsLoading(false);
       return;
     }
 
@@ -26,15 +30,26 @@ const VerifierSignIn = () => {
     };
 
     try {
-      // const response = await api.post("/api/login_verifier/", data);
+      const response = await api.post('/api/login_organization/', data);
+      
+      console.log("Login response:", response.data);
 
-      // localStorage.setItem("accessToken", response.data.access);
-      // localStorage.setItem("refreshToken", response.data.refresh);
-      navigate("/volunteer-home"); // Navigate to Volunteer1
-      console.log("Sign in successful");
+      if (response.data.access && response.data.refresh) {
+        localStorage.setItem("accessToken", response.data.access);
+        localStorage.setItem("refreshToken", response.data.refresh);
+        navigate("/organization-home");
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (error) {
-      // console.error("Login error:", error);
-      setError("Invalid login credentials. Please try again.");
+      console.error("Login error details:", error.response?.data || error.message);
+      setError(
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        "Invalid login credentials. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,6 +83,7 @@ const VerifierSignIn = () => {
             className="mb-4"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
+            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -77,6 +93,7 @@ const VerifierSignIn = () => {
             className="mb-4"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
           <div className="flex justify-between items-center mb-4">
             <FormControlLabel control={<Checkbox />} label="Remember me" />
@@ -88,8 +105,9 @@ const VerifierSignIn = () => {
           <button
             type="submit"
             className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-200"
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? "Signing in..." : "Sign In"}
           </button>
 
           <div className="flex items-center justify-center my-4">
@@ -109,7 +127,7 @@ const VerifierSignIn = () => {
           </button>
 
           <p className="text-center mt-6 text-gray-600">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link
               to="/sign-up"
               className="text-blue-600 hover:underline font-semibold"

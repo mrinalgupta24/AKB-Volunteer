@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
 import img1 from "../../assets/fundraising.png";
 import CapturedImageComponent from "../ImagePreview/CapturedImageComponent";
 import DonorCardOverlay from "../ImagePreview/DonorCardOverlay";
+import api from "../../api.js";
 
 const CameraComponent = ({ onClose, onCapture, name }) => {
   const videoRef = React.useRef(null);
@@ -83,7 +84,6 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
-        {/* Render Donor Card Overlay on top of the camera video */}
         <DonorCardOverlay name={name} />
         <button
           onClick={toggleCamera}
@@ -112,10 +112,37 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
   );
 };
 
-const FeedFoodMobileComponent = ({ name, category, photosRemaining }) => {
+const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [donorInfo, setDonorInfo] = useState({
+    name: "",
+    category: "",
+    remaining_photos: 0,
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchDonorInfo = async () => {
+      try {
+        const response = await api.get("/api/get_donor_info/", {
+          params: { category: "groceries" },
+        });
+        console.log("API request:", response.config); // Log the request config
+        console.log("API response:", response); // Log the entire response
+        if (response.data) {
+          console.log("Fetched donor info:", response.data); // Log the fetched data
+          setDonorInfo(response.data);
+        } else {
+          console.error("No data found in response");
+        }
+      } catch (error) {
+        console.error("Error fetching donor info:", error);
+      }
+    };
+
+    fetchDonorInfo();
+  }, []);
 
   const handleCameraClose = () => {
     setShowCamera(false);
@@ -131,9 +158,27 @@ const FeedFoodMobileComponent = ({ name, category, photosRemaining }) => {
     setShowCamera(true);
   };
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     console.log("Image accepted:", capturedImage);
-    navigate("/uploadmoreimage");
+    try {
+      const response = await api.post("/api/upload_image/", {
+        image: capturedImage,
+        name,
+        category,
+      });
+      console.log("Image uploaded successfully:", response.data);
+      navigate("/uploadmoreimage");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+    }
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      navigate("/uploaded-images-two");
+    }
   };
 
   return (
@@ -144,21 +189,31 @@ const FeedFoodMobileComponent = ({ name, category, photosRemaining }) => {
 
       {!showCamera && !capturedImage ? (
         <>
-          {/* Parcel Information */}
           <div className="w-11/12 max-w-md px-4 py-6 mt-6 bg-white rounded-lg shadow-md mx-auto">
-            <p className="text-gray-800 font-semibold">
-              Name on Parcel: <span className="font-normal">{name}</span>
-            </p>
-            <p className="text-gray-800 font-semibold">
-              Category: <span className="font-normal">{category}</span>
-            </p>
-            <p className="text-gray-800 font-semibold">
-              Photos Remaining:{" "}
-              <span className="font-normal">{photosRemaining}</span>
-            </p>
+            {donorInfo.name ? (
+              <>
+                <p className="text-gray-800 font-semibold">
+                  Name on Parcel:{" "}
+                  <span className="font-normal">{donorInfo.name}</span>
+                </p>
+                <p className="text-gray-800 font-semibold">
+                  Category:{" "}
+                  <span className="font-normal">{donorInfo.category}</span>
+                </p>
+                <p className="text-gray-800 font-semibold">
+                  Photos Remaining:{" "}
+                  <span className="font-normal">
+                    {donorInfo.remaining_photos}
+                  </span>
+                </p>
+              </>
+            ) : (
+              <p className="text-gray-800 font-semibold">
+                No donor information available.
+              </p>
+            )}
           </div>
 
-          {/* Image */}
           <div className="my-6">
             <img
               src={img1}
@@ -167,14 +222,33 @@ const FeedFoodMobileComponent = ({ name, category, photosRemaining }) => {
             />
           </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col w-full max-w-md space-y-4 px-4">
+          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6">
+            <label className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer">
+              <Camera size={20} />
+              Upload Bill
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
+            <label className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer">
+              <Camera size={20} />
+              Upload Dress
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => setShowCamera(true)}
             >
               <Camera size={20} />
-              Upload
+              Upload Person Holding Dress
             </button>
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
@@ -213,4 +287,4 @@ const FeedFoodMobileComponent = ({ name, category, photosRemaining }) => {
   );
 };
 
-export default FeedFoodMobileComponent;
+export default GroceriesMobileComponent;

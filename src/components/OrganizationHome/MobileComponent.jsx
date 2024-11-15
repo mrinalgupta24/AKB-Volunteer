@@ -51,7 +51,7 @@ const MobileComponent = () => {
           View Organization Donation <span>&#8250;</span>
         </button>
         <button
-          onClick={() => navigate("/upload-donation-photos")}
+          onClick={() => navigate("/select-donation-category")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Upload Donation Photos <span>&#8250;</span>
