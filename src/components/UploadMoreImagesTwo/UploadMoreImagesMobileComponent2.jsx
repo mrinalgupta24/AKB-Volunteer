@@ -65,7 +65,7 @@ const UploadMoreImagesMobileComponent2 = ({
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-        Volunteer Dashboard
+      Organization Dashboard
       </header>
 
       <div className="w-11/12 max-w-md px-4 py-6 mt-6 bg-white rounded-lg shadow-md mx-auto">

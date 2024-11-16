@@ -16,10 +16,7 @@ const MobileComponent = () => {
         <h2 className="text-center text-xl font-semibold">Select Category</h2>
         {/* Category Buttons */}
         <CategoryButton text="Feed Food for Needy" route="/feed-food" />
-        <CategoryButton
-          text="Feed for Stray Cats / Dogs"
-          route="/feed-stray"
-        />
+        <CategoryButton text="Feed for Stray Cats / Dogs" route="/feed-stray" />
         {/* <CategoryButton
           text="Provide Medicines to the Poor"
           route="/provide-medicines"

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
-import img1 from "../../assets/fundraising.png";
 import CapturedImageComponent from "../ImagePreview/CapturedImageComponent";
 import DonorCardOverlay from "../ImagePreview/DonorCardOverlay";
 import api from "../../api.js";
+import img1 from "../../assets/fundraising.png";
 
 const CameraComponent = ({ onClose, onCapture, name }) => {
   const videoRef = React.useRef(null);
@@ -38,7 +38,7 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     startCamera(facingMode);
     return () => {
       if (stream) {
@@ -113,15 +113,34 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
   );
 };
 
+const ImagesGrid = ({ images }) => (
+  <>
+    <div className="text-xl font-semibold mt-6 mb-4">Images</div>
+    <div className="grid grid-cols-3 gap-4 px-4">
+      {images.map((image, index) => (
+        <div key={index} className="bg-gray-200 p-2 shadow-lg rounded-md">
+          <img
+            src={image} // Use the image URL directly
+            alt={`Uploaded ${index + 1}`}
+            className="w-full h-auto object-cover rounded"
+          />
+        </div>
+      ))}
+    </div>
+  </>
+);
+
 const FeedStrayMobileComponent = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [viewUploadedImages, setViewUploadedImages] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [donorInfo, setDonorInfo] = useState({
     name: "",
     category: "",
     remaining_photos: 0,
+    donation_id: null,
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDonorInfo = async () => {
@@ -129,16 +148,28 @@ const FeedStrayMobileComponent = () => {
         const response = await api.get("/api/get_donor_info/", {
           params: { category: "stray" },
         });
-        console.log("API request:", response.config); // Log the request config
-        console.log("API response:", response); // Log the entire response
         if (response.data) {
-          console.log("Fetched donor info:", response.data); // Log the fetched data
           setDonorInfo(response.data);
-        } else {
-          console.error("No data found in response");
+          // Fetch images after setting donor info
+          fetchUploadedImages(response.data.donation_id);
         }
       } catch (error) {
         console.error("Error fetching donor info:", error);
+      }
+    };
+
+    const fetchUploadedImages = async (donationId) => {
+      try {
+        // Construct the URL dynamically using donation_id from the donor info
+        const apiUrl = `/api/get_uploaded_img/?donation_id=${donationId}`;
+        console.log("Fetching images from:", apiUrl);
+
+        const response = await api.get(apiUrl);
+        console.log("Fetched Images Response:", response.data);
+
+        setUploadedImages(response.data.donation_img || []);
+      } catch (error) {
+        console.error("Error fetching uploaded images:", error);
       }
     };
 
@@ -160,30 +191,35 @@ const FeedStrayMobileComponent = () => {
   };
 
   const handleAccept = async () => {
-    console.log("Image accepted:", capturedImage);
     try {
-      const response = await api.post("/api/upload_image/", {
-        image: capturedImage,
-        name,
-        category,
+      await api.post("/api/upload_donation_images/", {
+        img: capturedImage,
+        donation_id: donorInfo.donation_id,
+        type: "donation_img",
       });
-      console.log("Image uploaded successfully:", response.data);
-      navigate("/uploadmoreimage");
+      setCapturedImage(null);
+      setShowCamera(false);
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please try again.");
     }
+  };
+
+  const toggleViewImages = () => {
+    setViewUploadedImages(!viewUploadedImages);
+    setShowCamera(false);
+    setCapturedImage(null);
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-        Volunteer Dashboard
+        Organization Dashboard
       </header>
 
-      {!showCamera && !capturedImage ? (
+      {viewUploadedImages ? (
+        <ImagesGrid images={uploadedImages} />
+      ) : !showCamera && !capturedImage ? (
         <>
-          {/* Parcel Information */}
           <div className="w-11/12 max-w-md px-4 py-6 mt-6 bg-white rounded-lg shadow-md mx-auto">
             {donorInfo.name ? (
               <>
@@ -218,8 +254,7 @@ const FeedStrayMobileComponent = () => {
             />
           </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6">
+          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6 mt-6">
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
               onClick={() => setShowCamera(true)}
@@ -229,17 +264,10 @@ const FeedStrayMobileComponent = () => {
             </button>
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => navigate("/uploaded-images")}
+              onClick={toggleViewImages}
             >
               <ImageIcon size={20} />
               View Uploaded Images
-            </button>
-            <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => setShowCamera(true)}
-            >
-              <Upload size={20} />
-              Add Extra Image/Reupload
             </button>
           </div>
         </>
@@ -247,7 +275,7 @@ const FeedStrayMobileComponent = () => {
         <CameraComponent
           onClose={handleCameraClose}
           onCapture={handleImageCapture}
-          name={name}
+          name={donorInfo.name}
         />
       ) : (
         <CapturedImageComponent

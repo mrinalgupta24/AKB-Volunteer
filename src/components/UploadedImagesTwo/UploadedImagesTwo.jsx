@@ -6,7 +6,7 @@ const UploadedImagesTwo = () => {
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       {/* Header */}
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-        Volunteer Dashboard
+      Organization Dashboard
       </header>
 
       {/* Images Section */}
@@ -18,7 +18,7 @@ const UploadedImagesTwo = () => {
           <div key={index} className="bg-gray-200 p-2 shadow-lg rounded-md">
             <img
               src={images}
-              alt="Volunteer"
+              alt="Organization"
               className="w-full h-auto object-cover rounded"
             />
           </div>
@@ -34,7 +34,7 @@ const UploadedImagesTwo = () => {
           <div key={index} className="bg-gray-200 p-2 shadow-lg rounded-md">
             <img
               src={images}
-              alt="Volunteer"
+              alt="Organization"
               className="w-full h-auto object-cover rounded"
             />
           </div>

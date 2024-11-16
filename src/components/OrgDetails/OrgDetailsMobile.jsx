@@ -4,7 +4,7 @@ const OrgDetailsMobile = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-        Volunteer Dashboard
+      Organization Dashboard
       </header>
 
       <div className="flex-1 p-4 space-y-4">

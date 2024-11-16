@@ -30,7 +30,7 @@ const ContactHelpMobile = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-        Volunteer Dashboard
+      Organization Dashboard
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-5">

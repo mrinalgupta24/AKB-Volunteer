@@ -8,7 +8,7 @@ const MobileComponent = () => {
     <div className="min-h-screen bg-gray-100 p-4">
       {/* Header */}
       <h1 className="text-center font-bold text-lg mb-4">
-        Volunteer Dashboard
+      Organization Dashboard
       </h1>
 
       {/* Profile and Balance Section */}
@@ -35,7 +35,7 @@ const MobileComponent = () => {
       <div className="text-center mb-6">
         <h2 className="text-xl font-semibold">Hi, ABC Trust</h2>
         <p className="text-gray-500">
-          Welcome back to your Volunteer Dashboard!
+          Welcome back to your Organization Dashboard!
         </p>
         <p className="text-red-500 font-semibold mt-2">
           50 organization specific donation photos pending
