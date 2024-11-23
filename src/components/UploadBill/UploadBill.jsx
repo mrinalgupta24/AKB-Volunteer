@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from "../../api";
 
 const UploadBill = () => {
   const [formData, setFormData] = useState({
@@ -7,9 +8,38 @@ const UploadBill = () => {
     documents: null,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    const data = new FormData();
+    data.append("documents", formData.documents);
+    data.append("bill_for", formData.purpose);
+    data.append("amount_paid", formData.amount);
+
+    console.log("Form data to be sent:", {
+      documents: formData.documents,
+      bill_for: formData.purpose,
+      amount_paid: formData.amount,
+    });
+
+    try {
+      const response = await api.post("/api/upload_expenses/", data);
+
+      if (response.status === 200) {
+        console.log("File uploaded successfully");
+      } else {
+        console.error(
+          "File upload failed",
+          response.status,
+          response.statusText
+        );
+        console.log("Response data:", response.data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+      }
+    }
   };
 
   const handleInputChange = (e) => {
@@ -30,7 +60,7 @@ const UploadBill = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-      Organization Dashboard
+        Organization Dashboard
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -54,7 +84,7 @@ const UploadBill = () => {
             Amount paid
           </label>
           <input
-            type="text" // Changed to text input
+            type="text"
             id="amount"
             name="amount"
             value={formData.amount}
@@ -87,7 +117,7 @@ const UploadBill = () => {
 
         <button
           type="submit"
-          className="w-full h-12 bg-green-500 text-white rounded-lg text-sm font-medium mt-6 active:bg-green-600"
+          className="w-full h-12 bg-green-500 text-white rounded-lg text-sm font-medium mt-6 active:bg-green-600 "
         >
           Submit
         </button>

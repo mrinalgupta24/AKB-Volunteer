@@ -5,7 +5,6 @@ import OrganizationHome from "./pages/OrganizationHome";
 import OrganizationSelectCategory from "./pages/OrganizationSelectCategory";
 import FeedFoodCategory from "./components/OrganizationCategory/FeedFoodMobileComponent";
 import UploadMoreImages from "./pages/UploadMoreImages";
-import UploadImages from "./pages/UploadedImages";
 import ImagePreview from "./pages/ImagePreview";
 import GroceriesMobileComponent from "./components/OrganizationCategory/GroceriesMobileComponent";
 import UploadMoreImagesTwo from "./pages/UploadMoreImagesTwo";
@@ -36,7 +35,6 @@ const App = () => {
         />
         <Route path="/uploadmoreimage" element={<UploadMoreImages />} />
         <Route path="/uploadmoreimagetwo" element={<UploadMoreImagesTwo />} />
-        <Route path="/uploaded-images" element={<UploadImages />} />
         <Route path="/uploaded-images-two" element={<UploadedImagesTwo />} />
         <Route path="" element={<ImagePreview />} />
         <Route path="/upload-bills" element={<UploadBill />} />

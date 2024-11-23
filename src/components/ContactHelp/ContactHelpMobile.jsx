@@ -1,15 +1,45 @@
 import React, { useState } from "react";
+import api from "../../api";
 
 const ContactHelpMobile = () => {
   const [formData, setFormData] = useState({
     purpose: "",
-    amount: "",
+    description: "",
     documents: null,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    const data = new FormData();
+    data.append("documents", formData.documents);
+    data.append("issue_type", formData.purpose);
+    data.append("description", formData.description);
+
+    console.log("Form data to be sent:", {
+      documents: formData.documents,
+      issue_type: formData.purpose,
+      description: formData.description,
+    });
+
+    try {
+      const response = await api.post("api/org_issue/", data);
+
+      if (response.status === 200) {
+        console.log("File uploaded successfully");
+      } else {
+        console.error(
+          "File upload failed",
+          response.status,
+          response.statusText
+        );
+        console.log("Response data:", response.data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+      }
+    }
   };
 
   const handleInputChange = (e) => {
@@ -30,7 +60,7 @@ const ContactHelpMobile = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-      Organization Dashboard
+        Organization Dashboard
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -44,22 +74,22 @@ const ContactHelpMobile = () => {
             name="purpose"
             value={formData.purpose}
             onChange={handleInputChange}
-            placeholder="Payment Issue"
+            placeholder="Payment"
             className="w-full h-12 px-3 rounded-lg border border-gray-200 focus:outline-none focus:border-green-500"
           />
         </div>
 
         <div>
-          <label htmlFor="amount" className="block text-sm mb-2">
-          Description of Issue
+          <label htmlFor="description" className="block text-sm mb-2">
+            Description of Issue
           </label>
           <input
-            type="text" // Changed to text input
-            id="amount"
-            name="amount"
-            value={formData.amount}
+            type="text"
+            id="description"
+            name="description"
+            value={formData.description}
             onChange={handleInputChange}
-            placeholder="I have not received my payment"
+            placeholder="Issue Description"
             className="w-full h-12 px-3 rounded-lg border border-gray-200 focus:outline-none focus:border-green-500"
           />
         </div>
@@ -87,7 +117,7 @@ const ContactHelpMobile = () => {
 
         <button
           type="submit"
-          className="w-full h-12 bg-green-500 text-white rounded-lg text-sm font-medium mt-6 active:bg-green-600"
+          className="w-full h-12 bg-green-500 text-white rounded-lg text-sm font-medium mt-6 active:bg-green-600 "
         >
           Submit
         </button>

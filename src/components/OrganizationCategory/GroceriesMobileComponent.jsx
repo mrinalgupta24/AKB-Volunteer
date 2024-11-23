@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
-import img1 from "../../assets/fundraising.png";
 import CapturedImageComponent from "../ImagePreview/CapturedImageComponent";
 import DonorCardOverlay from "../ImagePreview/DonorCardOverlay";
 import api from "../../api.js";
+import img1 from "../../assets/fundraising.png";
 
 const CameraComponent = ({ onClose, onCapture, name }) => {
   const videoRef = React.useRef(null);
@@ -38,7 +38,7 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     startCamera(facingMode);
     return () => {
       if (stream) {
@@ -84,6 +84,7 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
+        {/* Render Donor Card Overlay on top of the camera video */}
         <DonorCardOverlay name={name} />
         <button
           onClick={toggleCamera}
@@ -112,15 +113,29 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
   );
 };
 
-const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
+const GroceriesMobileComponent = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [donorInfo, setDonorInfo] = useState({
     name: "",
     category: "",
     remaining_photos: 0,
+    donation_id: null,
   });
-  const navigate = useNavigate();
+  const [uploadedStatus, setUploadedStatus] = useState({
+    bill: false,
+    groceries: false,
+    donation_img: false,
+    additional_img: false,
+  });
+  const [currentType, setCurrentType] = useState("");
+  const [uploadedData, setUploadedData] = useState({
+    bill: null,
+    groceries: null,
+    donation_img: null,
+    additional_img: null,
+  });
 
   useEffect(() => {
     const fetchDonorInfo = async () => {
@@ -128,16 +143,35 @@ const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
         const response = await api.get("/api/get_donor_info/", {
           params: { category: "groceries" },
         });
-        console.log("API request:", response.config); // Log the request config
-        console.log("API response:", response); // Log the entire response
         if (response.data) {
-          console.log("Fetched donor info:", response.data); // Log the fetched data
           setDonorInfo(response.data);
-        } else {
-          console.error("No data found in response");
+          // Fetch images after setting donor info
+          fetchUploadedImages(response.data.donation_id);
         }
       } catch (error) {
         console.error("Error fetching donor info:", error);
+      }
+    };
+
+    const fetchUploadedImages = async (donationId) => {
+      try {
+        // Construct the URL dynamically using donation_id from the donor info
+        const apiUrl = `/api/get_uploaded_img/?donation_id=${donationId}`;
+        console.log("Fetching images from:", apiUrl);
+
+        const response = await api.get(apiUrl);
+        console.log("Fetched Images Response:", response.data);
+
+        setUploadedImages(
+          [
+            response.data.bill,
+            response.data.groceries,
+            response.data.donation_img,
+            response.data.additional_img,
+          ].filter(Boolean)
+        ); // Filter out any null or undefined values
+      } catch (error) {
+        console.error("Error fetching uploaded images:", error);
       }
     };
 
@@ -159,32 +193,161 @@ const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
   };
 
   const handleAccept = async () => {
-    console.log("Image accepted:", capturedImage);
     try {
-      const response = await api.post("/api/upload_image/", {
-        image: capturedImage,
-        name,
-        category,
+      console.log("Capture Details:", {
+        donationId: donorInfo.donation_id,
+        imageLength: capturedImage ? capturedImage.length : "No image",
+        currentType: currentType,
       });
-      console.log("Image uploaded successfully:", response.data);
-      navigate("/uploadmoreimage");
+
+      const blob = await fetch(capturedImage)
+        .then((res) => res.blob())
+        .then((blob) => new Blob([blob], { type: "image/jpeg" })); // Ensure the correct MIME type
+
+      const formData = new FormData();
+      formData.append("img", blob);
+      formData.append("donation_id", donorInfo.donation_id);
+      formData.append("type", currentType);
+
+      const response = await api.post(
+        "/api/upload_donation2_images/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Enhanced logging
+      console.log("Upload Response:", response);
+
+      if (response.status === 200) {
+        // Use status code for success
+        setCapturedImage(null);
+        setShowCamera(false);
+        setUploadedStatus((prevStatus) => ({
+          ...prevStatus,
+          [currentType]: true,
+        }));
+        setUploadedData((prevData) => ({
+          ...prevData,
+          [currentType]: capturedImage,
+        }));
+      } else {
+        throw new Error("Upload failed");
+      }
     } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please try again.");
+      console.error("Detailed Capture Error:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      alert(`Failed to upload ${currentType} image: ${error.message}`);
     }
   };
 
-  const handleImageUpload = (event) => {
+  const handleFileUpload = async (event, type) => {
     const file = event.target.files[0];
     if (file) {
-      navigate("/uploaded-images-two");
+      const formData = new FormData();
+      formData.append("img", file);
+      formData.append("donation_id", donorInfo.donation_id);
+      formData.append("type", type);
+
+      try {
+        const response = await api.post(
+          "/api/upload_donation2_images/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log("Full API Response:", response);
+
+        if (response.status === 200) {
+          setUploadedStatus((prevStatus) => ({
+            ...prevStatus,
+            [type]: true,
+          }));
+
+          setUploadedData((prevData) => ({
+            ...prevData,
+            [type]: URL.createObjectURL(file),
+          }));
+        } else {
+          throw new Error("Upload failed");
+        }
+      } catch (error) {
+        console.error("Detailed Error:", {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+        });
+        alert(`Failed to upload ${type} image: ${error.message}`);
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const convertToBlob = async (dataUrl) => {
+        const response = await fetch(dataUrl);
+        return await response.blob();
+      };
+
+      const billBlob = uploadedData.bill
+        ? await convertToBlob(uploadedData.bill)
+        : null;
+      const groceriesBlob = uploadedData.groceries
+        ? await convertToBlob(uploadedData.groceries)
+        : null;
+      const donationImgBlob = uploadedData.donation_img
+        ? await convertToBlob(uploadedData.donation_img)
+        : null;
+      const additionalImgBlob = uploadedData.additional_img
+        ? await convertToBlob(uploadedData.additional_img)
+        : null;
+
+      const formData = new FormData();
+      formData.append("donation_id", donorInfo.donation_id);
+      if (billBlob) formData.append("bill", billBlob);
+      if (groceriesBlob) formData.append("item", groceriesBlob);
+      if (donationImgBlob) formData.append("donation_img", donationImgBlob);
+      if (additionalImgBlob)
+        formData.append("additional_img", additionalImgBlob);
+
+      console.log("Submitting donation with data:", formData);
+
+      const response = await api.post(
+        "/api/upload_donation2_images/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Donation submitted successfully!");
+        window.location.reload(); // Reload the page after successful submission
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting donation:", error);
+      alert(`Failed to submit donation: ${error.message}`);
     }
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
-      Organization Dashboard
+        Organization Dashboard
       </header>
 
       {!showCamera && !capturedImage ? (
@@ -206,6 +369,12 @@ const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
                     {donorInfo.remaining_photos}
                   </span>
                 </p>
+                <p className="text-gray-800 font-semibold">
+                  Amount:{" "}
+                  <span className="font-normal">
+                    {donorInfo.amount || "N/A"}
+                  </span>
+                </p>
               </>
             ) : (
               <p className="text-gray-800 font-semibold">
@@ -214,6 +383,7 @@ const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
             )}
           </div>
 
+          {/* Image */}
           <div className="my-6">
             <img
               src={img1}
@@ -222,55 +392,75 @@ const GroceriesMobileComponent = ({ name, category, photosRemaining }) => {
             />
           </div>
 
-          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6">
-            <label className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer">
-              <Camera size={20} />
+          <div className="flex flex-col w-full max-w-md space-y-4 px-4 mb-6 mt-6">
+            <label
+              className={`mx-auto w-3/4 py-3 ${
+                uploadedStatus.bill ? "bg-green-500" : "bg-[#407daa]"
+              } text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer`}
+            >
+              <Upload size={20} />
               Upload Bill
               <input
                 type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
                 className="hidden"
+                onChange={(e) => handleFileUpload(e, "bill")}
               />
             </label>
-            <label className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer">
-              <Camera size={20} />
-              Upload Dress
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
-            <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => setShowCamera(true)}
-            >
-              <Camera size={20} />
-              Upload Person Holding Dress
-            </button>
-            <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => navigate("/uploaded-images")}
-            >
-              <ImageIcon size={20} />
-              View Uploaded Images
-            </button>
-            <button
-              className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => setShowCamera(true)}
+            <label
+              className={`mx-auto w-3/4 py-3 ${
+                uploadedStatus.groceries ? "bg-green-500" : "bg-[#407daa]"
+              } text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer`}
             >
               <Upload size={20} />
-              Add Extra Image/Reupload
+              Upload Groceries
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "groceries")}
+              />
+            </label>
+            <button
+              className={`mx-auto w-3/4 py-3 ${
+                uploadedStatus.donation_img ? "bg-green-500" : "bg-[#407daa]"
+              } text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2`}
+              onClick={() => {
+                setShowCamera(true);
+                setCurrentType("donation_img");
+              }}
+            >
+              <Camera size={20} />
+              Capture Person Holding Groceries
+            </button>
+            <button
+              className={`mx-auto w-3/4 py-3 ${
+                uploadedStatus.additional_img ? "bg-green-500" : "bg-[#407daa]"
+              } text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2`}
+              onClick={() => {
+                setShowCamera(true);
+                setCurrentType("additional_img");
+              }}
+            >
+              <Camera size={20} />
+              Add Extra Image
             </button>
           </div>
+
+          {uploadedStatus.bill &&
+            uploadedStatus.groceries &&
+            uploadedStatus.donation_img && (
+              <button
+                className="mx-auto w-3/4 py-3 bg-red-500 text-white rounded-full text-sm font-semibold hover:bg-red-700 flex items-center justify-center gap-2"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            )}
         </>
       ) : showCamera ? (
         <CameraComponent
           onClose={handleCameraClose}
           onCapture={handleImageCapture}
-          name={name}
+          name={donorInfo.name}
         />
       ) : (
         <CapturedImageComponent

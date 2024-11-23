@@ -1,13 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
-import CapturedImageComponent from "../ImagePreview/CapturedImageComponent";
-import DonorCardOverlay from "../ImagePreview/DonorCardOverlay";
+import html2canvas from "html2canvas";
 import api from "../../api.js";
 import img1 from "../../assets/fundraising.png";
 
-const CameraComponent = ({ onClose, onCapture, name }) => {
-  const videoRef = React.useRef(null);
+const DonorCardOverlay = ({ name, category }) => (
+  <div className="absolute top-3 left-4 w-[150px]" id="donor-card">
+    <div className="bg-gradient-to-b from-blue-900 to-blue-950 rounded-xl overflow-hidden shadow-lg">
+      <div className="bg-blue-800 p-1.5 text-center">
+        <h1 className="text-xs font-bold text-white tracking-wide">
+          AKB FOUNDATION
+        </h1>
+      </div>
+      <div className="relative p-3">
+        <div className="relative mx-auto w-12 h-12 mb-2">
+          <div className="absolute inset-0 rounded-full border-2 border-blue-400 shadow-lg overflow-hidden">
+            <div className="w-full h-full bg-blue-200/20" />
+          </div>
+          <div className="absolute -inset-1 border-2 border-blue-300/30 rounded-full animate-spin-slow" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="bg-white/90 text-blue-900 py-0.5 px-2 rounded-md font-bold text-[8px] inline-block">
+            {category || "FEED A HUNGRY STOMACH"}
+          </div>
+          <div className="text-white space-y-1">
+            <p className="text-[10px] font-bold text-center">
+              {name || "DONOR NAME"}
+            </p>
+            <div className="h-px w-12 mx-auto bg-blue-400/50" />
+            <p className="text-[8px] text-blue-200 italic text-center">
+              Making Change Together
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const CameraComponent = ({ onClose, onCapture, name, category }) => {
+  const videoRef = useRef(null);
+  const donorCardRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [facingMode, setFacingMode] = useState("environment");
 
@@ -53,7 +87,7 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
     );
   };
 
-  const handleCapture = () => {
+  const handleCapture = async () => {
     const canvas = document.createElement("canvas");
     const video = videoRef.current;
 
@@ -68,6 +102,20 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
       }
 
       ctx.drawImage(video, 0, 0);
+
+      // Capture the donor card as an image using html2canvas
+      const donorCardElement = donorCardRef.current;
+      if (donorCardElement) {
+        try {
+          // Add a delay to ensure the donor card is fully rendered
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          const donorCardCanvas = await html2canvas(donorCardElement);
+          ctx.drawImage(donorCardCanvas, 20, 20); // Adjust the position as needed
+        } catch (error) {
+          console.error("Error capturing donor card:", error);
+        }
+      }
+
       const imageData = canvas.toDataURL("image/jpeg", 0.8);
       onCapture && onCapture(imageData);
     }
@@ -85,7 +133,9 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
           }`}
         />
         {/* Render Donor Card Overlay on top of the camera video */}
-        <DonorCardOverlay name={name} />
+        <div ref={donorCardRef}>
+          <DonorCardOverlay name={name} category={category} />
+        </div>
         <button
           onClick={toggleCamera}
           className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-lg"
@@ -107,6 +157,53 @@ const CameraComponent = ({ onClose, onCapture, name }) => {
           className="px-6 py-2 bg-gray-500 text-white rounded-full font-semibold hover:bg-gray-600"
         >
           Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const CapturedImageComponent = ({
+  imageData,
+  onRetake,
+  onAccept,
+  name,
+  category,
+}) => {
+  return (
+    <div className="flex flex-col items-center w-full h-full">
+      <div className="relative w-full h-[75vh] flex items-center justify-center">
+        {/* Display Captured Image */}
+        {imageData ? (
+          <div className="relative w-full h-full flex justify-center items-center">
+            <img
+              src={imageData}
+              alt="Captured"
+              className="w-auto h-full object-contain rounded-md shadow-lg"
+            />
+            {/* Overlay Donor Card, position it properly */}
+            <div className="absolute top-3 left-5 w-[150px]">
+              <DonorCardOverlay name={name} category={category} />
+            </div>
+          </div>
+        ) : (
+          <p>No image captured</p>
+        )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-4 mt-4">
+        <button
+          onClick={onRetake}
+          className="px-6 py-2 mb-4 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600"
+        >
+          Retake
+        </button>
+        <button
+          onClick={onAccept}
+          className="px-6 py-2 mb-4 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600"
+        >
+          Accept
         </button>
       </div>
     </div>
@@ -276,12 +373,15 @@ const FeedStrayMobileComponent = () => {
           onClose={handleCameraClose}
           onCapture={handleImageCapture}
           name={donorInfo.name}
+          category={donorInfo.category}
         />
       ) : (
         <CapturedImageComponent
           imageData={capturedImage}
           onRetake={handleRetake}
           onAccept={handleAccept}
+          name={donorInfo.name}
+          category={donorInfo.category}
         />
       )}
 
