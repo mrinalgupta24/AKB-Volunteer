@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-  baseURL: "http://98.83.206.195:8000", //base url
+  baseURL: "https://api.allorigins.win/raw?url=http://98.83.206.195:8000", //base url
 });
 
 //axios interceptor (docs)
