@@ -1,35 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Camera, Image as ImageIcon, Upload, RotateCw } from "lucide-react";
+import { Camera, Image as ImageIcon, RotateCw } from "lucide-react";
 import api from "../../api.js";
 import img1 from "../../assets/fundraising.png";
 import html2canvas from "html2canvas";
 
 const DonorCardOverlay = ({ name, category }) => (
   <div className="absolute top-3 left-4 w-[150px]" id="donor-card-overlay">
-    <div className="bg-gradient-to-b from-blue-900 to-blue-950 rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-gradient-to-b from-blue-900 to-blue-950 overflow-hidden shadow-lg">
       <div className="bg-blue-800 p-1.5 text-center">
-        <h1 className="text-xs font-bold text-white tracking-wide">
+        <h1 className="text-xs font-bold text-white tracking-wide m-0">
           AKB FOUNDATION
         </h1>
       </div>
       <div className="relative p-3">
         <div className="relative mx-auto w-12 h-12 mb-2">
-          <div className="absolute inset-0 rounded-full border-2 border-blue-400 shadow-lg overflow-hidden">
+          <div className="absolute inset-0 border-2 border-blue-400 shadow-lg overflow-hidden">
             <div className="w-full h-full bg-blue-200/20" />
           </div>
-          <div className="absolute -inset-1 border-2 border-blue-300/30 rounded-full animate-spin-slow" />
+          <div className="absolute -inset-1 border-2 border-blue-300/30 animate-spin-slow" />
         </div>
         <div className="space-y-1.5">
-          <div className="bg-white/90 text-blue-900 py-0.5 px-2 rounded-md font-bold text-[8px] inline-block">
-            {category || "FEED A HUNGRY STOMACH"}
+          <div className="bg-white/90 text-blue-900 py-0.5 px-2 font-bold text-[8px] inline-block">
+            FEED A HUNGRY STOMACH
           </div>
           <div className="text-white space-y-1">
-            <p className="text-[10px] font-bold text-center">
+            <p className="text-[10px] font-bold text-center uppercase m-0">
               {name || "DONOR NAME"}
             </p>
             <div className="h-px w-12 mx-auto bg-blue-400/50" />
-            <p className="text-[8px] text-blue-200 italic text-center">
+            <p className="text-[8px] text-blue-200 italic text-center m-0">
               Making Change Together
             </p>
           </div>
@@ -91,8 +90,9 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
     const video = videoRef.current;
 
     if (video) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      // Set canvas dimensions for portrait orientation
+      canvas.width = video.videoHeight;
+      canvas.height = video.videoWidth;
       const ctx = canvas.getContext("2d");
 
       if (facingMode === "user") {
@@ -100,17 +100,29 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
         ctx.scale(-1, 1);
       }
 
-      ctx.drawImage(video, 0, 0);
+      // Rotate the canvas to capture the video in portrait mode
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((90 * Math.PI) / 180);
+      ctx.drawImage(video, -video.videoWidth / 2, -video.videoHeight / 2);
 
-      // Draw the donor card overlay on the canvas
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          ctx.drawImage(donorCardCanvas, 10, 10); // Adjust position as needed
+          // Reset transformations and draw the donor card at the top left of the canvas
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          const scale = 0.5; // Scale down the donor card
+          ctx.drawImage(
+            donorCardCanvas,
+            20, // Adjust the x position as needed
+            20, // Adjust the y position as needed
+            donorCardCanvas.width * scale,
+            donorCardCanvas.height * scale
+          );
           const imageData = canvas.toDataURL("image/jpeg", 0.8);
           onCapture && onCapture(imageData);
         });
       } else {
+        console.error("Donor card overlay not found.");
         const imageData = canvas.toDataURL("image/jpeg", 0.8);
         onCapture && onCapture(imageData);
       }
@@ -128,7 +140,6 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
-        {/* Render Donor Card Overlay on top of the camera video */}
         <DonorCardOverlay name={name} category={category} />
         <button
           onClick={toggleCamera}
@@ -167,7 +178,6 @@ const CapturedImageComponent = ({
   return (
     <div className="flex flex-col items-center w-full h-full">
       <div className="relative w-full h-[75vh] flex items-center justify-center">
-        {/* Display Captured Image */}
         {imageData ? (
           <div className="relative w-full h-full flex justify-center items-center">
             <img
@@ -175,17 +185,12 @@ const CapturedImageComponent = ({
               alt="Captured"
               className="w-auto h-full object-contain rounded-md shadow-lg"
             />
-            {/* Overlay Donor Card, position it properly */}
-            <div className="absolute top-3 left-5 w-[150px]">
-              <DonorCardOverlay name={name} category={category} />
-            </div>
           </div>
         ) : (
           <p>No image captured</p>
         )}
       </div>
 
-      {/* Buttons */}
       <div className="flex gap-4 mt-4">
         <button
           onClick={onRetake}
@@ -211,7 +216,7 @@ const ImagesGrid = ({ images }) => (
       {images.map((image, index) => (
         <div key={index} className="bg-gray-200 p-2 shadow-lg rounded-md">
           <img
-            src={image} // Use the image URL directly
+            src={image}
             alt={`Uploaded ${index + 1}`}
             className="w-full h-auto object-cover rounded"
           />
@@ -232,6 +237,9 @@ const FeedFoodMobileComponent = () => {
     remaining_photos: 0,
     donation_id: null,
   });
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [allowUnload, setAllowUnload] = useState(false);
+  const [isTryingToLeave, setIsTryingToLeave] = useState(false);
 
   useEffect(() => {
     const fetchDonorInfo = async () => {
@@ -241,7 +249,6 @@ const FeedFoodMobileComponent = () => {
         });
         if (response.data) {
           setDonorInfo(response.data);
-          // Fetch images after setting donor info
           fetchUploadedImages(response.data.donation_id);
         }
       } catch (error) {
@@ -251,13 +258,8 @@ const FeedFoodMobileComponent = () => {
 
     const fetchUploadedImages = async (donationId) => {
       try {
-        // Construct the URL dynamically using donation_id from the donor info
         const apiUrl = `/api/get_uploaded_img/?donation_id=${donationId}`;
-        console.log("Fetching images from:", apiUrl);
-
         const response = await api.get(apiUrl);
-        console.log("Fetched Images Response:", response.data);
-
         setUploadedImages(response.data.donation_img || []);
       } catch (error) {
         console.error("Error fetching uploaded images:", error);
@@ -266,6 +268,36 @@ const FeedFoodMobileComponent = () => {
 
     fetchDonorInfo();
   }, []);
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (!allowUnload) {
+        event.preventDefault();
+        setIsTryingToLeave(true);
+        setShowConfirmation(true);
+        window.history.pushState(null, null, window.location.href);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [allowUnload]);
+
+  const handleUnblock = async () => {
+    try {
+      await api.post("/api/unblock/");
+      setAllowUnload(true);
+      setShowConfirmation(false);
+      if (isTryingToLeave) {
+        window.history.back();
+      }
+    } catch (error) {
+      console.error("Error unblocking:", error);
+    }
+  };
 
   const handleCameraClose = () => {
     setShowCamera(false);
@@ -336,7 +368,6 @@ const FeedFoodMobileComponent = () => {
             )}
           </div>
 
-          {/* Image */}
           <div className="my-6">
             <img
               src={img1}
@@ -377,6 +408,28 @@ const FeedFoodMobileComponent = () => {
           name={donorInfo.name}
           category={donorInfo.category}
         />
+      )}
+
+      {showConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="mb-4">Are you sure you want to leave?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600"
+              >
+                No
+              </button>
+              <button
+                onClick={handleUnblock}
+                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <footer className="w-full py-4 text-center bg-gray-200 font-bold mt-auto">
