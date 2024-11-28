@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-  baseURL: "https://98.83.206.195", //base url
+  baseURL: "https://abkcharity.duckdns.org", //base url
 });
 
 //axios interceptor (docs)
@@ -39,7 +39,7 @@ api.interceptors.response.use(
       try {
         
         //requesting new access token using the refresh token
-        const response = await axios.post("https://98.83.206.195/api/token/refresh/", {
+        const response = await axios.post("https://abkcharity.duckdns.org/api/token/refresh/", {
           refresh: refreshToken, 
         });
 
